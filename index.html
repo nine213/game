@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วงล้อหมุน</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            overflow: hidden;
+        }
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #333;
+            position: absolute;
+            transition: transform 4s ease-out;
+        }
+        .arrow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid red;
+            z-index: 10;
+        }
+        .spin-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .jumpscare {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .jumpscare img {
+            width: 80vw;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="wheel-container">
+        <div class="arrow"></div>
+        <canvas id="wheel" class="wheel"></canvas>
+    </div>
+    <button class="spin-button" onclick="spinWheel()">หมุนวงล้อ</button>
+    <div id="result" class="result"></div>
+    
+    <div id="jumpscare" class="jumpscare">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS915C5FLXJ_C5YCKrZO_tnK1d4ndqenlQIkQ&s" alt="Jump Scare">
+    </div>
+    
+    <!-- Only one <audio> tag needed -->
+    <audio id="scareSound" src="sounds\ig-wasdnine-73924.mp3" preload="auto"></audio>
+
+    <script>
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const size = 300;
+        canvas.width = size;
+        canvas.height = size;
+
+        const items = ["รางวัลที่ 1", "รางวัลที่ 2", "รางวัลที่ 3", "รางวัลที่ 4", "รางวัลที่ 5", "รางวัลที่ 6"];
+        const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A8", "#FFD700", "#00FFFF"];
+        const slice = 360 / items.length;
+        let rotation = 0;
+
+        function drawWheel() {
+            for (let i = 0; i < items.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(size / 2, size / 2);
+                ctx.arc(size / 2, size / 2, size / 2, (slice * i - 90) * Math.PI / 180, (slice * (i + 1) - 90) * Math.PI / 180);
+                ctx.fillStyle = colors[i];
+                ctx.fill();
+                ctx.stroke();
+                ctx.closePath();
+                
+                ctx.save();
+                ctx.fillStyle = "black";
+                ctx.translate(size / 2, size / 2);
+                ctx.rotate((slice * (i + 0.5) - 90) * Math.PI / 180);
+                ctx.fillText(items[i], size / 3, 10);
+                ctx.restore();
+            }
+        }
+
+        function spinWheel() {
+            const randomDegree = 3600 + Math.floor(Math.random() * 360);
+            rotation = randomDegree;
+            document.getElementById("wheel").style.transform = `rotate(${rotation}deg)`;
+            setTimeout(() => {
+                const actualRotation = (rotation % 360) - 90;
+                const index = Math.floor(((360 - actualRotation) % 360) / slice);
+                document.getElementById("result").innerText = `คุณได้: ${items[index]}`;
+                triggerJumpScare();
+            }, 4000);
+        }
+
+        function triggerJumpScare() {
+            const jumpscare = document.getElementById("jumpscare");
+            const scareSound = document.getElementById("scareSound");
+            jumpscare.style.display = "flex";
+            scareSound.play();
+            setTimeout(() => {
+                jumpscare.style.display = "none";
+            }, 2000);
+        }
+
+        drawWheel();
+    </script>
+</body>
+</html>
+
+
+</body>
+</html>
